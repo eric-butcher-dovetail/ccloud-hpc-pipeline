@@ -1,0 +1,16 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and customize as needed
+# DO NOT commit terraform.tfvars to version control
+
+# SSH key path (public key)
+ssh_key_path = "~/.ssh/id_rsa.pub"
+
+# Instance name
+instance_name = "data-analysis-pipeline"
+
+# Carolina Cloud region
+region = "us-east-1"
+
+# Uncomment to override default plan
+# plan = "epyc-8-32"  # For more compute power
+
