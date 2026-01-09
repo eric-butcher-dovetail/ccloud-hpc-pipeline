@@ -1,382 +1,269 @@
-# Carolina Cloud HPC Data Analysis Pipeline
+# Carolina Cloud HPC Data Analysis Pipeline - Test Case
 
-A fully automated, reproducible test case for high-performance data analysis on Carolina Cloud infrastructure. This pipeline demonstrates Infrastructure as Code (IaC), containerized workloads, and complete lifecycle management with automatic cost controls.
+A complete example of running high-performance data analysis on Carolina Cloud with automated deployment, execution, and cleanup.
 
-## 🎯 Overview
+## 📋 What This Demonstrates
 
-This project implements a **stateless**, **cost-controlled** data analysis pipeline that:
-
-- Provisions AMD EPYC compute instances via Terraform
-- Executes computationally intensive Monte Carlo simulations
-- Automatically retrieves results
-- **Destroys infrastructure** to prevent unnecessary costs
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐
-│   deploy.sh     │  ← Orchestration Script
-└────────┬────────┘
-         │
-         ├─→ Terraform ──→ Carolina Cloud API
-         │   (Provision AMD EPYC Instance)
-         │
-         ├─→ SSH + SCP ──→ Deploy Code
-         │
-         ├─→ Docker Build ──→ Create Container
-         │
-         ├─→ Docker Run ──→ Execute Analysis
-         │
-         ├─→ SCP ──→ Retrieve Results
-         │
-         └─→ Terraform Destroy ──→ Cleanup
-```
-
-## 📦 Components
-
-### 1. Infrastructure (`main.tf`)
-- **Provider**: Carolina Cloud Terraform provider
-- **Instance**: AMD EPYC `epyc-4-16` (4 vCPUs, 16GB RAM)
-- **OS**: Ubuntu 24.04 LTS
-- **Networking**: Static IP reservation
-- **Security**: SSH key injection
-- **Initialization**: Automated Docker installation
-
-### 2. Container (`Dockerfile`)
-- **Base Image**: `carolinacloud/data-science:latest`
-- **Dependencies**: pandas, numpy, scipy, matplotlib
-- **Configuration**: Optimized for multi-core performance
-- **Portability**: Fully reproducible environment
-
-### 3. Analysis Workload (`analysis.py`)
-**Monte Carlo Option Pricing Simulation:**
-- 10 million path simulations
-- Black-Scholes model implementation
-- European call option pricing
-- Statistical validation against analytical solution
-
-**Matrix Computation Benchmark:**
-- Large-scale linear algebra (5000×5000 matrices)
-- Matrix multiplication and eigenvalue computation
-- Hardware performance demonstration
-
-### 4. Orchestration (`deploy.sh`)
-Fully automated bash script with:
-- ✅ Prerequisite validation
-- ✅ Infrastructure provisioning
-- ✅ Readiness checks
-- ✅ Code deployment
-- ✅ Analysis execution
-- ✅ Result retrieval
-- ✅ **Automatic cleanup (cost control)**
-
-## ⚠️ IMPORTANT: Which Script to Use?
-
-**Use `deploy-cli.sh` (CLI-based) - This one works!**
-
-The Terraform provider `carolinacloud/ccloud` doesn't exist yet, so `deploy.sh` won't work.  
-See [TERRAFORM_NOTE.md](TERRAFORM_NOTE.md) for details.
+- **Cloud Infrastructure Automation** - Provision compute instances via CLI
+- **Containerized Workloads** - Docker-based analysis environment
+- **HPC Computing** - 10 million path Monte Carlo simulation on high-performance hardware
+- **Cost Control** - Automatic infrastructure teardown after completion
+- **End-to-End Pipeline** - From provisioning to results in one command
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-1. **Carolina Cloud CLI** - Installed and configured
-   ```bash
-   # Download the CLI for your platform
-   # macOS ARM64:
-   curl -L -o ccloud-darwin-arm64 https://cli.carolinacloud.io/download/darwin-arm64
-   sudo mv ccloud-darwin-arm64 /usr/local/bin/ccloud
-   sudo chmod +x /usr/local/bin/ccloud
-   
-   # Get your API key from: https://console.carolinacloud.io/settings/api
-   # Add to ~/.zshrc or ~/.bashrc:
-   export CCLOUD_API_KEY=your_api_key_here
-   
-   # Reload shell config
-   source ~/.zshrc
-   ```
+1. **Carolina Cloud CLI** installed
+2. **Carolina Cloud API key** from https://console.carolinacloud.io/settings/api
+3. **SSH keys** generated
 
-2. **Terraform** - v1.0+
-   ```bash
-   # macOS
-   brew install terraform
-   
-   # Linux
-   wget https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
-   unzip terraform_1.6.0_linux_amd64.zip
-   sudo mv terraform /usr/local/bin/
-   ```
-
-3. **SSH Keys** - Generated and configured
-   ```bash
-   ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
-   ```
-
-### Installation
+### Run the Pipeline
 
 ```bash
-# Clone or download this repository
-git clone https://github.com/your-org/ccloud-hpc-pipeline.git
-cd ccloud-hpc-pipeline
+# 1. Set your API key
+export CCLOUD_API_KEY=your_api_key_here
 
-# Make orchestration script executable
-chmod +x deploy.sh
+# 2. Execute the pipeline
+./deploy-cli.sh
+
+# 3. Results appear in ./results/
 ```
 
-### Execution
+That's it! The pipeline will:
+- Provision a high-performance VM (4 vCPUs, 16GB RAM)
+- Install Docker and deploy analysis code
+- Run Monte Carlo simulation (~40 seconds)
+- Download results as CSV files
+- **Automatically destroy the VM** to prevent costs
+
+## 📁 Project Structure
+
+```
+ccloud-test-case/
+├── deploy-cli.sh          # Main automation script (USE THIS!)
+├── analysis.py            # Monte Carlo simulation code
+├── Dockerfile             # Container image definition
+├── deploy.sh              # Terraform version (conceptual - provider doesn't exist)
+├── main.tf                # Terraform config (conceptual)
+├── install-cli.sh         # Helper to install Carolina Cloud CLI
+├── QUICKSTART.md          # Detailed setup guide
+└── LICENSE                # MIT License
+```
+
+## 🔧 Detailed Setup
+
+### 1. Install Carolina Cloud CLI
+
+**macOS ARM64 (M1/M2/M3):**
+```bash
+curl -L -o ccloud-darwin-arm64 https://cli.carolinacloud.io/download/darwin-arm64
+sudo mkdir -p /usr/local/bin
+sudo mv ccloud-darwin-arm64 /usr/local/bin/ccloud
+sudo chmod +x /usr/local/bin/ccloud
+```
+
+**macOS Intel:**
+```bash
+curl -L -o ccloud-darwin-amd64 https://cli.carolinacloud.io/download/darwin-amd64
+sudo mkdir -p /usr/local/bin
+sudo mv ccloud-darwin-amd64 /usr/local/bin/ccloud
+sudo chmod +x /usr/local/bin/ccloud
+```
+
+**Linux:**
+```bash
+curl -L -o ccloud-linux-amd64 https://cli.carolinacloud.io/download/linux-amd64
+sudo mv ccloud-linux-amd64 /usr/local/bin/ccloud
+sudo chmod +x /usr/local/bin/ccloud
+```
+
+### 2. Configure API Key
+
+Get your API key from the [Carolina Cloud Console](https://console.carolinacloud.io/settings/api), then:
+
+**Permanently (recommended):**
+```bash
+echo 'export CCLOUD_API_KEY=your_api_key_here' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**For current session only:**
+```bash
+export CCLOUD_API_KEY=your_api_key_here
+```
+
+**Verify:**
+```bash
+ccloud list  # Should show your instances or empty list
+```
+
+### 3. Generate SSH Keys (if needed)
 
 ```bash
-# Run the complete pipeline (CLI-based - RECOMMENDED)
-./deploy-cli.sh
-
-# With custom configuration
-SSH_KEY_PATH=~/.ssh/custom_key \
-RESULTS_DIR=./my-results \
-INSTANCE_NAME=my-analysis \
-VM_CPUS=8 \
-VM_RAM=32 \
-./deploy-cli.sh
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
+# Press Enter for defaults, optionally add passphrase
 ```
+
+## 🎯 What the Pipeline Does
+
+### The Analysis Workload (`analysis.py`)
+
+1. **Monte Carlo Simulation**
+   - 10 million path simulations
+   - Black-Scholes option pricing model
+   - Statistical validation against analytical solution
+
+2. **Matrix Computation Benchmark**
+   - 5000×5000 matrix operations
+   - Tests linear algebra performance on AMD EPYC hardware
+
+3. **Results Export**
+   - `analysis_results.csv` - Main simulation results
+   - `terminal_price_stats.csv` - Statistical distributions
+
+### Expected Runtime
+
+- **Provisioning:** ~30-60 seconds
+- **Docker Setup:** ~30 seconds
+- **Analysis Execution:** ~40 seconds
+- **Results Download:** ~3 seconds
+- **Cleanup:** ~10 seconds
+- **Total:** ~2-3 minutes
+
+### Expected Cost
+
+**~$0.01 USD per run** (automatic cleanup prevents runaway costs)
 
 ## ⚙️ Configuration
 
-Configure via environment variables:
+Customize via environment variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `CCLOUD_API_KEY` | Carolina Cloud API key (required) | None |
-| `SSH_KEY_PATH` | Path to private SSH key | `~/.ssh/id_rsa` |
-| `SSH_KEY_PUB` | Path to public SSH key | `~/.ssh/id_rsa.pub` |
-| `RESULTS_DIR` | Local directory for results | `./results` |
-| `MAX_WAIT_TIME` | Instance readiness timeout (sec) | `600` |
-| `CHECK_INTERVAL` | Status check interval (sec) | `10` |
-| `INSTANCE_NAME` | Carolina Cloud instance name | `data-analysis-pipeline` |
-
-## 📊 Expected Output
-
-### Console Output
-```
-[INFO] 2026-01-08 10:15:23 - Validating prerequisites...
-[SUCCESS] 2026-01-08 10:15:24 - All prerequisites validated
-[INFO] 2026-01-08 10:15:24 - Initializing Terraform...
-[SUCCESS] 2026-01-08 10:15:26 - Terraform initialized
-[INFO] 2026-01-08 10:15:26 - Provisioning Carolina Cloud infrastructure...
-[SUCCESS] 2026-01-08 10:16:45 - Infrastructure provisioned
-[INFO] 2026-01-08 10:16:45 - Waiting for instance to be fully ready...
-[SUCCESS] 2026-01-08 10:17:12 - Instance is ready (elapsed: 27s)
-[INFO] 2026-01-08 10:17:12 - Deploying analysis code to instance...
-[SUCCESS] 2026-01-08 10:17:15 - Code deployed successfully
-[INFO] 2026-01-08 10:17:15 - Building Docker image on instance...
-[SUCCESS] 2026-01-08 10:17:52 - Docker image built successfully
-[INFO] 2026-01-08 10:17:52 - Executing data analysis pipeline...
-======================================================================
-CAROLINA CLOUD HPC DATA ANALYSIS PIPELINE
-======================================================================
-Starting Monte Carlo simulation with 10,000,000 paths...
-Simulation completed in 23.45 seconds
-Running matrix computation benchmark...
-Matrix benchmark completed in 15.78 seconds
-======================================================================
-RESULTS SUMMARY
-======================================================================
-Monte Carlo Option Price: $8.0234
-Analytical BS Price:      $8.0219
-Pricing Error:            $0.0015 (0.02%)
-95% Confidence Interval:  ±$0.0051
-MC Computation Time:      23.45 seconds
-Matrix Computation Time:  15.78 seconds
-======================================================================
-[SUCCESS] 2026-01-08 10:18:31 - Analysis completed successfully
-[INFO] 2026-01-08 10:18:31 - Downloading results...
-[SUCCESS] 2026-01-08 10:18:33 - Results downloaded to: ./results
-[INFO] 2026-01-08 10:18:33 - Starting cleanup process...
-[INFO] 2026-01-08 10:18:33 - Destroying infrastructure...
-[SUCCESS] 2026-01-08 10:19:15 - Infrastructure destroyed successfully
-[SUCCESS] 2026-01-08 10:19:15 - Pipeline completed successfully
-```
-
-### Result Files
-
-**`results/analysis_results.csv`**
-```csv
-timestamp,monte_carlo_simulations,mc_option_price,mc_std_error,mc_ci_95,mc_elapsed_time_sec,analytical_bs_price,pricing_error,error_percentage,matrix_computation_size,matrix_elapsed_time_sec,matrix_max_eigenvalue,total_elapsed_time_sec
-2026-01-08T10:18:29,10000000,8.0234,0.0026,0.0051,23.45,8.0219,0.0015,0.02,5000,15.78,125634.2,39.23
-```
-
-**`results/terminal_price_stats.csv`**
-```csv
-metric,mean,median,std,min,max,percentile_25,percentile_75,percentile_95
-Terminal Stock Price Distribution,105.13,103.67,21.35,45.23,215.67,89.45,117.82,145.23
-```
-
-## 🔒 Cost Control Features
-
-### Automatic Cleanup
-The `deploy.sh` script includes a **trap handler** that ensures `terraform destroy` runs even if:
-- Analysis fails
-- Network interruption occurs
-- User presses Ctrl+C
-- Any error occurs
-
-### Manual Cleanup (if needed)
 ```bash
-# If automatic cleanup fails, run manually:
-terraform destroy -auto-approve
+# VM configuration
+VM_CPUS=8 \
+VM_RAM=32 \
+VM_DISK=100 \
+VM_TIER=high-performance \
+./deploy-cli.sh
 
-# Verify no instances are running:
-ccloud compute instances list
+# Other options
+SSH_KEY_PATH=~/.ssh/custom_key \
+RESULTS_DIR=./my-results \
+INSTANCE_NAME=my-analysis \
+./deploy-cli.sh
 ```
+
+## 📊 Understanding the Results
+
+### analysis_results.csv
+
+```csv
+timestamp,monte_carlo_simulations,mc_option_price,analytical_bs_price,pricing_error,error_percentage,...
+2026-01-09T10:30:15,10000000,8.0234,8.0219,0.0015,0.02%,...
+```
+
+Key metrics:
+- **mc_option_price**: Simulated option price
+- **analytical_bs_price**: Theoretical Black-Scholes price
+- **pricing_error**: Difference (should be small)
+- **error_percentage**: Accuracy of simulation
+
+### terminal_price_stats.csv
+
+Statistical distribution of simulated stock prices at maturity.
 
 ## 🛠️ Troubleshooting
 
-### SSH Connection Issues
+### "CCLOUD_API_KEY environment variable is not set"
 ```bash
-# Test SSH connectivity
-ssh -i ~/.ssh/id_rsa ubuntu@<INSTANCE_IP>
-
-# Check SSH key permissions
-chmod 600 ~/.ssh/id_rsa
-chmod 644 ~/.ssh/id_rsa.pub
-```
-
-### Terraform State Issues
-```bash
-# Reset Terraform state
-rm -rf .terraform terraform.tfstate*
-terraform init
-
-# Force unlock if state is locked
-terraform force-unlock <LOCK_ID>
-```
-
-### Docker Build Failures
-```bash
-# SSH into instance manually
-ssh -i ~/.ssh/id_rsa ubuntu@<INSTANCE_IP>
-
-# Check Docker status
-sudo systemctl status docker
-
-# View Docker logs
-docker logs <container_id>
-```
-
-### Carolina Cloud API Key Issues
-```bash
-# Check if API key is set
+# Check if set
 echo $CCLOUD_API_KEY
 
-# Test API key works
-ccloud list
-
-# If not working, reset it
-export CCLOUD_API_KEY=your_new_api_key
+# Set it
+export CCLOUD_API_KEY=your_api_key
 ```
 
-## 📈 Performance Considerations
-
-### Scaling Parameters
-
-Adjust in `analysis.py`:
-```python
-SIMULATIONS = 10_000_000  # Increase for longer runtime
-TIME_STEPS = 252          # More granular path simulation
-```
-
-### Instance Sizing
-
-Modify in `main.tf`:
-```hcl
-plan = "epyc-8-32"   # 8 vCPUs, 32GB RAM
-plan = "epyc-16-64"  # 16 vCPUs, 64GB RAM
-```
-
-### Timeout Configuration
+### "ccloud: command not found"
 ```bash
-# Increase for slower networks or complex workloads
-MAX_WAIT_TIME=1200 ./deploy.sh  # 20 minutes
+# Check PATH
+which ccloud
+
+# Reinstall CLI (see installation section above)
 ```
 
-## 🏆 Best Practices Implemented
-
-✅ **Infrastructure as Code** - Reproducible, version-controlled infrastructure  
-✅ **Stateless Design** - No persistent data on VMs  
-✅ **Cost Controls** - Automatic teardown prevents runaway costs  
-✅ **Containerization** - Portable, consistent environments  
-✅ **Error Handling** - Comprehensive error checking and logging  
-✅ **Security** - SSH key authentication, no hardcoded credentials  
-✅ **Observability** - Detailed logging and result tracking  
-
-## 📝 Customization
-
-### Using Different Workloads
-
-Replace `analysis.py` with your own computation:
-```python
-#!/usr/bin/env python3
-import pandas as pd
-
-# Your analysis here
-results = your_computation()
-
-# Save to CSV
-results.to_csv('/app/output/results.csv', index=False)
-```
-
-### Alternative Base Images
-
-Modify `Dockerfile`:
-```dockerfile
-FROM continuumio/miniconda3:latest
-# or
-FROM jupyter/scipy-notebook:latest
-```
-
-### Multi-Stage Deployments
-
-Run multiple analyses:
+### "Permission denied (publickey)"
 ```bash
-for experiment in exp1 exp2 exp3; do
-    INSTANCE_NAME=$experiment \
-    RESULTS_DIR=./results/$experiment \
-    ./deploy.sh
-done
+# Check SSH keys exist
+ls -la ~/.ssh/id_rsa*
+
+# Generate new keys
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
 ```
 
-## 🔐 Security Notes
+### "Failed to create VM"
+- Verify API key is valid: `ccloud list`
+- Check account has sufficient credits
+- Ensure requested VM specs are available
 
-- **Never commit** `.tfstate` files (contain sensitive data)
-- Use **environment variables** for API keys, never hardcode
-- **Rotate SSH keys** regularly
-- Review **Carolina Cloud security groups** and firewall rules
-- Enable **audit logging** for production workloads
+## 📝 Customizing the Analysis
+
+Edit `analysis.py` to run your own computation:
+
+```python
+# Change simulation size
+SIMULATIONS = 50_000_000  # Larger for more accuracy
+
+# Modify parameters
+def monte_carlo_option_pricing(
+    S0=120.0,      # Initial stock price
+    K=125.0,       # Strike price
+    T=0.5,         # Time to maturity
+    # ...
+):
+```
+
+## ⚠️ Note on Terraform Files
+
+**`deploy.sh` and `main.tf` don't work** because the Carolina Cloud Terraform provider doesn't exist yet. These files are included as conceptual examples of what Infrastructure-as-Code would look like.
+
+**Use `deploy-cli.sh` for actual deployments** - it uses the Carolina Cloud CLI directly.
+
+## 🔒 Security
+
+- ✅ API keys via environment variables (not hardcoded)
+- ✅ `.gitignore` protects sensitive files
+- ✅ SSH key authentication
+- ✅ No persistent data on VMs
+- ✅ Automatic cleanup prevents abandoned resources
+
+**Never commit:**
+- API keys
+- SSH private keys
+- `.tfstate` files
+- `.env` files with secrets
 
 ## 📚 Additional Resources
 
+- [Carolina Cloud Console](https://console.carolinacloud.io)
 - [Carolina Cloud Documentation](https://docs.carolinacloud.io)
-- [Terraform Carolina Cloud Provider](https://registry.terraform.io/providers/carolinacloud/ccloud)
-- [Carolina Cloud CLI Reference](https://cli.carolinacloud.io/docs)
-- [AMD EPYC Performance Guide](https://www.amd.com/en/processors/epyc-server)
+- [QUICKSTART.md](QUICKSTART.md) - Step-by-step setup guide
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request with tests
+This is a test case/example project. Feel free to:
+- Modify for your own workloads
+- Use as a template for similar pipelines
+- Adapt for other cloud providers
 
 ## 📄 License
 
-MIT License - See LICENSE file for details
-
-## 🙋 Support
-
-- Issues: [GitHub Issues](https://github.com/your-org/ccloud-hpc-pipeline/issues)
-- Email: support@example.com
-- Carolina Cloud Support: support@carolinacloud.io
+MIT License - See [LICENSE](LICENSE) file
 
 ---
 
-**⚠️ IMPORTANT**: Always verify infrastructure is destroyed after pipeline execution to avoid unexpected charges. Check your Carolina Cloud console at [console.carolinacloud.io](https://console.carolinacloud.io).
+**Questions?** Check [QUICKSTART.md](QUICKSTART.md) for detailed setup instructions.
 
+**Want to modify?** Edit `analysis.py` for your own computation, adjust VM specs via environment variables.
+
+**Having issues?** See the Troubleshooting section above or check the Carolina Cloud documentation.

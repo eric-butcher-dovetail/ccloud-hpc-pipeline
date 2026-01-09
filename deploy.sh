@@ -1,20 +1,25 @@
 #!/bin/bash
 
 ################################################################################
-# Carolina Cloud HPC Data Analysis Pipeline - Deployment Orchestrator
+# ⚠️  WARNING: This script does NOT work!
 # 
-# This script automates the complete lifecycle:
+# The Carolina Cloud Terraform provider doesn't exist.
+# This file is kept as a CONCEPTUAL example of what Infrastructure-as-Code
+# deployment would look like.
+#
+# FOR ACTUAL DEPLOYMENT: Use deploy-cli.sh instead!
+#
+################################################################################
+#
+# Carolina Cloud HPC Data Analysis Pipeline - Terraform-Based Deployment (Conceptual)
+# 
+# This script would automate the complete lifecycle IF the Terraform provider existed:
 # 1. Infrastructure provisioning (Terraform)
 # 2. Instance readiness verification
 # 3. Code deployment
 # 4. Analysis execution via Docker
 # 5. Results retrieval
 # 6. Infrastructure teardown (cost control)
-#
-# Prerequisites:
-# - Carolina Cloud CLI authenticated
-# - Terraform installed
-# - SSH key configured
 ################################################################################
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures

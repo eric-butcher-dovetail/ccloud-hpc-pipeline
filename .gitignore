@@ -66,3 +66,6 @@ env/
 *.bak
 *.backup
 
+# Carolina Cloud CLI binaries (if downloaded locally)
+ccloud
+ccloud-*
