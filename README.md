@@ -70,6 +70,13 @@ Fully automated bash script with:
 - ✅ Result retrieval
 - ✅ **Automatic cleanup (cost control)**
 
+## ⚠️ IMPORTANT: Which Script to Use?
+
+**Use `deploy-cli.sh` (CLI-based) - This one works!**
+
+The Terraform provider `carolinacloud/ccloud` doesn't exist yet, so `deploy.sh` won't work.  
+See [TERRAFORM_NOTE.md](TERRAFORM_NOTE.md) for details.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -120,14 +127,16 @@ chmod +x deploy.sh
 ### Execution
 
 ```bash
-# Run the complete pipeline
-./deploy.sh
+# Run the complete pipeline (CLI-based - RECOMMENDED)
+./deploy-cli.sh
 
 # With custom configuration
 SSH_KEY_PATH=~/.ssh/custom_key \
 RESULTS_DIR=./my-results \
 INSTANCE_NAME=my-analysis \
-./deploy.sh
+VM_CPUS=8 \
+VM_RAM=32 \
+./deploy-cli.sh
 ```
 
 ## ⚙️ Configuration
@@ -253,14 +262,16 @@ sudo systemctl status docker
 docker logs <container_id>
 ```
 
-### Carolina Cloud CLI Authentication
+### Carolina Cloud API Key Issues
 ```bash
-# Re-authenticate
-ccloud auth logout
-ccloud auth login
+# Check if API key is set
+echo $CCLOUD_API_KEY
 
-# Verify authentication
-ccloud auth status
+# Test API key works
+ccloud list
+
+# If not working, reset it
+export CCLOUD_API_KEY=your_new_api_key
 ```
 
 ## 📈 Performance Considerations

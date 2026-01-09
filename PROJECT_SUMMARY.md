@@ -8,18 +8,21 @@ All files have been created, documented, and security-checked. The project is pr
 
 ## 📦 Complete File Inventory
 
-### Core Application Files (4)
-1. **`main.tf`** (131 lines) - Terraform infrastructure configuration
+### Core Application Files (5)
+1. **`main.tf`** (131 lines) - Terraform infrastructure (conceptual - provider doesn't exist)
 2. **`Dockerfile`** (37 lines) - Container image definition  
 3. **`analysis.py`** (192 lines) - Monte Carlo simulation workload
-4. **`deploy.sh`** (348 lines) - Main orchestration script ✓ executable
+4. **`deploy.sh`** (348 lines) - Terraform-based orchestration (conceptual)
+5. **`deploy-cli.sh`** (400+ lines) - **CLI-based orchestration (USE THIS!)** ✓ executable
 
-### Documentation Files (5)
-5. **`README.md`** (360 lines) - Main project documentation
-6. **`QUICKSTART.md`** (218 lines) - Quick start guide
-7. **`SETUP.md`** (130 lines) - Detailed setup instructions
-8. **`ARCHITECTURE.md`** (466 lines) - System design docs
-9. **`LICENSE`** (21 lines) - MIT License
+### Documentation Files (7)
+6. **`README.md`** (360 lines) - Main project documentation
+7. **`QUICKSTART.md`** (218 lines) - Quick start guide
+8. **`SETUP.md`** (130 lines) - Detailed setup instructions
+9. **`ARCHITECTURE.md`** (466 lines) - System design docs
+10. **`TERRAFORM_NOTE.md`** (150 lines) - Terraform vs CLI explanation
+11. **`API_KEY_SETUP.md`** (180 lines) - API key configuration guide
+12. **`LICENSE`** (21 lines) - MIT License
 
 ### Configuration & Helper Files (4)
 10. **`.gitignore`** (72 lines) - Git exclusions (protects secrets)
@@ -68,11 +71,13 @@ All files have been created, documented, and security-checked. The project is pr
 # 1. Set up API key
 export CCLOUD_API_KEY=your_api_key
 
-# 2. Run the pipeline
-./deploy.sh
+# 2. Run the CLI-based pipeline (this one works!)
+./deploy-cli.sh
 
 # Results appear in ./results/
 ```
+
+**Note:** Use `deploy-cli.sh` not `deploy.sh` - see TERRAFORM_NOTE.md
 
 ### For GitHub
 ```bash

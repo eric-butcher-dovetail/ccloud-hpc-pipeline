@@ -29,4 +29,8 @@ ccloud --version
 
 echo ""
 echo "You can now use 'ccloud' from anywhere in your terminal."
-echo "Try: ccloud auth login"
+echo ""
+echo "Next steps:"
+echo "1. Get your API key from: https://console.carolinacloud.io/settings/api"
+echo "2. Set it: export CCLOUD_API_KEY=your_api_key"
+echo "3. Test it: ccloud list"

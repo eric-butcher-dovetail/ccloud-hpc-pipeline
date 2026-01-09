@@ -1,16 +1,26 @@
+# ⚠️  WARNING: This is a CONCEPTUAL example!
+# The carolinacloud/ccloud Terraform provider does not currently exist in the registry.
+# 
+# This file shows what the infrastructure-as-code WOULD look like if the provider existed.
+# For ACTUAL deployment, use deploy-cli.sh which uses the Carolina Cloud CLI directly.
+#
+# If you want to use this conceptual approach, you would need to:
+# 1. Create or find a custom Terraform provider for Carolina Cloud
+# 2. Or use a generic provider like "null_resource" with "local-exec" to call the CLI
+#
+# See: https://developer.hashicorp.com/terraform/language/resources/provisioners/local-exec
+
 terraform {
   required_providers {
-    ccloud = {
-      source  = "carolinacloud/ccloud"
-      version = "~> 1.0"
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.0"
     }
   }
 }
 
-provider "ccloud" {
-  # Authentication is assumed to be configured via environment variables:
-  # CCLOUD_API_KEY or via CLI authentication
-}
+# NOTE: Using null_resource with local-exec as a workaround
+# This calls the Carolina Cloud CLI instead of using a native provider
 
 # Variables for configuration
 variable "ssh_key_path" {

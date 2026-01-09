@@ -8,25 +8,14 @@ Run this command to verify you have everything:
 
 ```bash
 # Check all prerequisites at once
-command -v terraform >/dev/null 2>&1 && echo "✓ Terraform installed" || echo "✗ Terraform missing"
 command -v ccloud >/dev/null 2>&1 && echo "✓ Carolina Cloud CLI installed" || echo "✗ CLI missing"
-ccloud auth status >/dev/null 2>&1 && echo "✓ CLI authenticated" || echo "✗ Not authenticated"
+[ -n "$CCLOUD_API_KEY" ] && echo "✓ API key configured" || echo "✗ API key not set"
 [ -f ~/.ssh/id_rsa ] && echo "✓ SSH key exists" || echo "✗ SSH key missing"
 ```
 
 ## 60-Second Setup
 
 ### 1. Install Dependencies (if needed)
-
-**Terraform:**
-```bash
-# macOS
-brew install terraform
-
-# Linux
-wget https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
-unzip terraform_1.6.0_linux_amd64.zip && sudo mv terraform /usr/local/bin/
-```
 
 **Carolina Cloud CLI:**
 ```bash
@@ -61,18 +50,22 @@ cd /path/to/ccloud-test-case
 
 ```bash
 # Make the script executable (first time only)
-chmod +x deploy.sh
+chmod +x deploy-cli.sh
 
-# Execute the pipeline
-./deploy.sh
+# Execute the CLI-based pipeline (RECOMMENDED - this one works!)
+./deploy-cli.sh
+
+# OR use the Terraform version (conceptual - provider doesn't exist yet)
+# ./deploy.sh
 ```
 
 That's it! The script will:
-1. ✓ Provision an AMD EPYC instance
-2. ✓ Deploy the analysis code
-3. ✓ Run the Monte Carlo simulation
-4. ✓ Download results to `./results/`
-5. ✓ **Automatically destroy the infrastructure**
+1. ✓ Provision a high-performance VM (4 vCPUs, 16GB RAM)
+2. ✓ Install Docker on the instance
+3. ✓ Deploy the analysis code
+4. ✓ Run the Monte Carlo simulation
+5. ✓ Download results to `./results/`
+6. ✓ **Automatically destroy the infrastructure**
 
 ## Expected Timeline
 
@@ -80,15 +73,16 @@ That's it! The script will:
 Phase                    Duration
 ────────────────────────────────
 Validation               ~5 sec
-Infrastructure Setup     ~60 sec
-Instance Ready           ~30 sec
+VM Provisioning          ~30-60 sec
+Instance Ready           ~30-60 sec
+Docker Installation      ~30 sec
 Code Deployment          ~5 sec
 Docker Build             ~40 sec
 Analysis Execution       ~40 sec
 Results Download         ~3 sec
-Infrastructure Cleanup   ~30 sec
+Infrastructure Cleanup   ~10 sec
 ────────────────────────────────
-TOTAL                    ~3.5 min
+TOTAL                    ~4-5 min
 ```
 
 ## View Your Results
@@ -134,9 +128,10 @@ chmod 644 ~/.ssh/id_rsa.pub
 ```
 
 ### "Terraform provider not found"
-**Solution:**
+**This is expected!** The Terraform provider doesn't exist yet.  
+**Solution:** Use the CLI-based script instead:
 ```bash
-terraform init -upgrade
+./deploy-cli.sh
 ```
 
 ### "Instance not ready after 600 seconds"
